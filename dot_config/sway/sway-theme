@@ -1,0 +1,30 @@
+##-- Style -------------------------------
+default_border pixel 3
+default_floating_border pixel 3
+smart_borders on
+
+titlebar_border_thickness 2
+titlebar_padding 6 3
+title_align center
+
+gaps inner 10
+gaps outer 0
+smart_gaps on
+
+##-- Colors (Everforest) -----------------
+set $col_bg   #2D353B
+set $col_fg   #D3C6AA
+set $col_ind  #DBBC7F
+set $col_foc  #A7C080
+set $col_ifoc #3D484D
+set $col_ufoc #3D484D
+set $col_urgt #E67E80
+set $col_dim  #859289
+
+# class                  border     backgr.    text      indicator  child_border
+client.focused           $col_foc   $col_foc   $col_bg   $col_foc   $col_foc
+client.focused_inactive  $col_ifoc  $col_bg    $col_dim  $col_ifoc  $col_ifoc
+client.unfocused         $col_ufoc  $col_bg    $col_dim  $col_ufoc  $col_ufoc
+client.urgent            $col_urgt  $col_urgt  $col_bg   $col_urgt  $col_urgt
+client.placeholder       $col_bg    $col_bg    $col_dim  $col_bg    $col_bg
+client.background        $col_bg

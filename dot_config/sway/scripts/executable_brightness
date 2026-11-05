@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+## Screen brightness with dunst popups (uses `light`).
+## Usage: brightness --inc | --dec | --get
+
+TAG='string:x-canonical-private-synchronous:sys-notify-backlight'
+
+get_backlight() { printf '%.0f' "$(light -G)"; }
+
+notify() {
+    local b; b=$(get_backlight)
+    notify-send -h "$TAG" -h "int:value:$b" -u low -i display-brightness "Brightness" "${b}%"
+}
+
+case "${1:-}" in
+    --inc) light -A 5 && notify ;;
+    --dec) light -U 5 && notify ;;
+    --get|*) echo "$(get_backlight)%" ;;
+esac

@@ -1,0 +1,90 @@
+@import "./colors.css";
+
+* {
+    font-family: "FiraCode Nerd Font";
+    font-size: 12px;
+}
+
+window#waybar {
+    background-color: @background;
+    color: @foreground;
+    border-top: 2px solid @background-alt;
+}
+
+/* workspaces */
+#workspaces {
+    background-color: @background-alt;
+    border-radius: 8px;
+    margin: 4px 2px;
+    padding: 0 4px;
+}
+#workspaces button {
+    color: @foreground-alt;
+    background: transparent;
+    margin: 2px 1px;
+    padding: 0 8px;
+    border-radius: 6px;
+}
+#workspaces button:hover {
+    background-color: @background;
+    color: @foreground;
+}
+#workspaces button.focused,
+#workspaces button.visible {
+    background-color: @green;
+    color: @background;
+}
+#workspaces button.urgent {
+    background-color: @red;
+    color: @background;
+}
+
+#mode {
+    background-color: @yellow;
+    color: @background;
+    font-weight: bold;
+}
+
+#window { color: @foreground; }
+window#waybar.empty #window { background-color: transparent; }
+
+/* module pills */
+#idle_inhibitor, #mode, #mpris, #pulseaudio, #backlight, #cpu, #memory,
+#disk, #network, #battery, #clock, #tray {
+    background-color: @background-alt;
+    border-radius: 8px;
+    margin: 4px 0;
+    padding: 0 10px;
+}
+
+#mpris { color: @foreground; }
+#mpris.playing { background-color: @green; color: @background; }
+#mpris.paused { color: @foreground-alt; }
+#mpris.stopped { color: @red; }
+
+#idle_inhibitor { color: @green; }
+#idle_inhibitor.deactivated { color: @red; }
+
+#pulseaudio { color: @green; }
+#backlight  { color: @yellow; }
+#cpu        { color: @cyan; }
+#memory     { color: @magenta; }
+#disk       { color: @foreground-alt; }
+#network    { color: @blue; }
+#clock      { color: @foreground; }
+#battery    { color: @green; }
+
+#pulseaudio.muted,
+#network.disconnected,
+#network.disabled { color: @red; }
+
+#battery.warning:not(.charging) { color: @yellow; }
+
+@keyframes blink { to { color: @background-alt; } }
+#battery.critical:not(.charging) {
+    color: @red;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }

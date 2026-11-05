@@ -1,0 +1,125 @@
+{
+  "sway/workspaces": {
+    "disable-scroll": false,
+    "all-outputs": true,
+    "format": "{name}"
+  },
+  "sway/mode": {
+    "format": "{}"
+  },
+  "sway/window": {
+    "format": "{}",
+    "max-length": 60,
+    "icon": false
+  },
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "\uf06e",
+      "deactivated": "\uf070"
+    }
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "\uf6a9 Mute",
+    "format-bluetooth": "\uf293 {volume}%",
+    "format-bluetooth-muted": "\uf6a9 Mute",
+    "format-icons": {
+      "headphone": "\uf025",
+      "headset": "\uf025",
+      "default": [
+        "\uf026",
+        "\uf027",
+        "\uf028"
+      ]
+    },
+    "scroll-step": 5.0,
+    "on-click": "~/.config/sway/scripts/volume --toggle",
+    "on-scroll-up": "~/.config/sway/scripts/volume --inc",
+    "on-scroll-down": "~/.config/sway/scripts/volume --dec"
+  },
+  "backlight": {
+    "interval": 2,
+    "format": "{icon} {percent}%",
+    "format-icons": [
+      "\uf185"
+    ],
+    "on-scroll-up": "~/.config/sway/scripts/brightness --inc",
+    "on-scroll-down": "~/.config/sway/scripts/brightness --dec"
+  },
+  "cpu": {
+    "interval": 2,
+    "format": "\uf2db {usage}%"
+  },
+  "memory": {
+    "interval": 5,
+    "format": "\uf538 {percentage}%"
+  },
+  "disk": {
+    "interval": 60,
+    "path": "/",
+    "format": "\uf0a0 {percentage_used}%"
+  },
+  "network": {
+    "interval": 5,
+    "format-wifi": "\uf1eb {essid}",
+    "format-ethernet": "\uf796 {ipaddr}",
+    "format-linked": "\uf796 {ifname} (No IP)",
+    "format-disconnected": "\uf6ab Disconnected",
+    "format-disabled": "\uf6ab Disabled",
+    "format-alt": "\uf093 {bandwidthUpBits}  \uf019 {bandwidthDownBits}",
+    "tooltip-format": "{ifname} via {gwaddr}"
+  },
+  "battery": {
+    "interval": 60,
+    "full-at": 100,
+    "states": {
+      "good": 95,
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": "\uf0e7 {capacity}%",
+    "format-plugged": "\uf1e6 {capacity}%",
+    "format-full": "{icon} Full",
+    "format-alt": "{icon} {time}",
+    "format-time": "{H}h {M}min",
+    "format-icons": [
+      "\uf244",
+      "\uf243",
+      "\uf242",
+      "\uf241",
+      "\uf240"
+    ]
+  },
+  "clock": {
+    "interval": 60,
+    "format": "\uf017 {:%H:%M}",
+    "format-alt": "\uf073 {:%a %d %b %Y}",
+    "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>"
+  },
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "format-paused": "{status_icon} {dynamic}",
+    "dynamic-order": [
+      "artist",
+      "title"
+    ],
+    "dynamic-separator": " - ",
+    "max-length": 40,
+    "player-icons": {
+      "default": "\uf001"
+    },
+    "status-icons": {
+      "paused": "\uf04c"
+    },
+    "on-click": "play-pause",
+    "on-click-middle": "previous",
+    "on-click-right": "next",
+    "tooltip-format": "{player}: {dynamic}"
+  }
+}

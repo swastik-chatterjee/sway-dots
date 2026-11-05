@@ -1,0 +1,13 @@
+# kanshi: applies a profile when your set of monitors changes.
+# Find output names with:  swaymsg -t get_outputs
+
+# Laptop screen only
+profile undocked {
+    output eDP-1 enable
+}
+
+# Example: laptop + external monitor on the right (uncomment and edit)
+# profile docked {
+#     output eDP-1 enable position 0,0
+#     output "Dell Inc. DELL U2720Q ABC1234" enable mode 3840x2160 position 1920,0
+# }

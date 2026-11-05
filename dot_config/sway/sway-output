@@ -1,0 +1,14 @@
+##-- Output ------------------------------
+# Output names: swaymsg -t get_outputs
+# Docs: man 5 sway-output
+# Monitor layouts are handled by kanshi (~/.config/kanshi/config).
+
+## Wallpaper on all monitors
+output * bg ~/.config/wallpapers/forest.png fill
+
+## Per-monitor wallpaper
+#output eDP-1    bg ~/.config/wallpapers/forest.png fill
+#output HDMI-A-1 bg ~/.config/wallpapers/flowers.png fill
+
+## HiDPI
+#output eDP-1 scale 1.5

@@ -1,0 +1,156 @@
+# ~/.bashrc  --  plain bash, no frameworks, no required dependencies.
+# Everything optional is guarded, so this never errors on a fresh machine.
+
+# Only for interactive shells
+case $- in *i*) ;; *) return ;; esac
+
+# Fedora's system-wide bash defaults (prompt/title are overridden below)
+[ -f /etc/bashrc ] && . /etc/bashrc
+
+# ─── Environment ─────────────────────────────────────────────
+export EDITOR=hx VISUAL=hx
+export PAGER=less
+export LESS='-R -F -X -i -M'            # colors, quit if 1 screen, smart-case
+export LANG="${LANG:-en_US.UTF-8}"
+
+# PATH: add each dir once
+for d in "$HOME/.local/bin" "$HOME/.cargo/bin" "$HOME/go/bin"; do
+  [ -d "$d" ] && case ":$PATH:" in *":$d:"*) ;; *) PATH="$d:$PATH" ;; esac
+done
+export PATH
+
+# Colored man pages (via less)
+export LESS_TERMCAP_mb=$'\e[1;31m' LESS_TERMCAP_md=$'\e[1;34m' \
+       LESS_TERMCAP_me=$'\e[0m'    LESS_TERMCAP_so=$'\e[1;43;30m' \
+       LESS_TERMCAP_se=$'\e[0m'    LESS_TERMCAP_us=$'\e[4;32m' \
+       LESS_TERMCAP_ue=$'\e[0m'
+
+# Colors for ls / grep
+if command -v dircolors >/dev/null 2>&1; then
+  eval "$(dircolors -b "$HOME/.dircolors" 2>/dev/null || dircolors -b)"
+fi
+
+# ─── History ─────────────────────────────────────────────────
+HISTFILE="$HOME/.histfile"
+HISTSIZE=100000
+HISTFILESIZE=200000
+HISTCONTROL=ignoreboth:erasedups        # skip dupes and space-prefixed cmds
+HISTIGNORE='ls:ll:la:cd:pwd:exit:clear:history'
+HISTTIMEFORMAT='%F %T  '
+shopt -s histappend cmdhist lithist
+
+# ─── Shell options ───────────────────────────────────────────
+shopt -s checkwinsize                   # update LINES/COLUMNS after each cmd
+shopt -s autocd 2>/dev/null             # type a dir name to cd into it
+shopt -s cdspell dirspell 2>/dev/null   # fix small typos in cd / completion
+shopt -s globstar 2>/dev/null           # ** matches recursively
+shopt -s nocaseglob extglob
+stty -ixon 2>/dev/null                  # free up Ctrl-S / Ctrl-Q
+
+# ─── Readline ────────────────────────────────────────────────
+bind 'set completion-ignore-case on'
+bind 'set show-all-if-ambiguous on'
+bind 'set colored-stats on'
+bind 'set colored-completion-prefix on'
+bind 'set mark-symlinked-directories on'
+bind 'set bell-style none'
+bind '"\e[A": history-search-backward'  # Up/Down search history by prefix
+bind '"\e[B": history-search-forward'
+bind '"\C-p": history-search-backward'
+bind '"\C-n": history-search-forward'
+
+# Programmable completion (needs the bash-completion package)
+if ! shopt -oq posix; then
+  if   [ -f /usr/share/bash-completion/bash_completion ]; then . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ];                         then . /etc/bash_completion
+  fi
+fi
+
+# ─── Prompt ──────────────────────────────────────────────────
+#  user@host:~/dir (branch*) [venv] [2 jobs]
+#  $  (green on success, red + exit code on failure)
+__prompt() {
+  local ec=$?
+  history -a                            # write history after every command
+
+  local reset='\[\e[0m\]' bold='\[\e[1m\]'
+  local red='\[\e[31m\]' green='\[\e[32m\]' yellow='\[\e[33m\]'
+  local blue='\[\e[34m\]' magenta='\[\e[35m\]' cyan='\[\e[36m\]'
+
+  # user@host: red for root, host only shown over SSH
+  local who="${bold}${green}\u${reset}"
+  [ "$EUID" -eq 0 ] && who="${bold}${red}\u${reset}"
+  [ -n "$SSH_CONNECTION" ] && who+="${bold}${yellow}@\h${reset}"
+
+  local out="${who}:${bold}${blue}\w${reset}"
+
+  # git branch + dirty marker
+  if command -v git >/dev/null 2>&1; then
+    local br
+    br=$(git symbolic-ref --short -q HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
+    if [ -n "$br" ]; then
+      local dirty=''
+      git diff-index --quiet HEAD -- 2>/dev/null || dirty='*'
+      out+=" ${magenta}(${br}${dirty})${reset}"
+    fi
+  fi
+
+  # python virtualenv
+  [ -n "$VIRTUAL_ENV" ] && out+=" ${cyan}[${VIRTUAL_ENV##*/}]${reset}"
+
+  # background jobs
+  local jobs_n
+  jobs_n=$(jobs -p | wc -l)
+  [ "$jobs_n" -gt 0 ] && out+=" ${yellow}[${jobs_n}j]${reset}"
+
+  # exit status of last command
+  local sym="${green}\\\$${reset}"
+  [ "$ec" -ne 0 ] && sym="${red}${ec} \\\$${reset}"
+
+  PS1="${out}\n${sym} "
+  PS2='> '
+}
+PROMPT_COMMAND=__prompt
+# Fallback if PROMPT_COMMAND is ever cleared:
+PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
+
+# ─── Functions ───────────────────────────────────────────────
+mkcd()  { mkdir -p -- "$1" && cd -- "$1"; }              # make dir and enter it
+up()    { local d=''; for ((i=0; i<${1:-1}; i++)); do d+='../'; done; cd "$d"; }  # up 3
+bak()   { cp -iv -- "$1" "$1.bak"; }                      # quick backup
+cx()    { chmod +x -- "$@"; }
+psg()   { ps aux | grep -i -- "[${1:0:1}]${1:1}"; }       # find a process
+ports() { ss -tulpn 2>/dev/null; }                        # listening ports
+myip()  { curl -fsS https://ifconfig.me; echo; }
+weather() { curl -fsS "wttr.in/${1:-}?format=3"; }
+
+# Extract almost any archive
+extract() {
+  local f
+  for f in "$@"; do
+    [ -f "$f" ] || { echo "extract: '$f' is not a file" >&2; continue; }
+    case "$f" in
+      *.tar.bz2|*.tbz2) tar xjf "$f" ;;
+      *.tar.gz|*.tgz)   tar xzf "$f" ;;
+      *.tar.xz|*.txz)   tar xJf "$f" ;;
+      *.tar.zst)        tar --zstd -xf "$f" ;;
+      *.tar)            tar xf "$f" ;;
+      *.zip)            unzip "$f" ;;
+      *.gz)             gunzip "$f" ;;
+      *.bz2)            bunzip2 "$f" ;;
+      *.xz)             unxz "$f" ;;
+      *.7z)             7z x "$f" ;;
+      *.rar)            unrar x "$f" ;;
+      *) echo "extract: don't know how to extract '$f'" >&2 ;;
+    esac
+  done
+}
+
+# Search history: hg <pattern>
+hg() { history | grep -i -- "$@"; }
+
+# ─── Aliases ─────────────────────────────────────────────────
+[ -f "$HOME/.bash_aliases" ] && . "$HOME/.bash_aliases"
+
+# ─── Machine-specific overrides (not tracked in git) ─────────
+[ -f "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"

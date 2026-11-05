@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+## Autostart helper (idea from Archcraft). Runs on every sway reload.
+
+# start a program only if it isn't already running
+run() {
+    if ! pgrep -x "$1" >/dev/null 2>&1; then
+        "$@" >/dev/null 2>&1 &
+    fi
+}
+
+# kill and relaunch (so config changes are picked up on reload)
+restart() {
+    local proc="$1"; shift
+    if pgrep -x "$proc" >/dev/null 2>&1; then
+        pkill -TERM -x "$proc"
+        while pgrep -x "$proc" >/dev/null 2>&1; do sleep 0.1; done
+    fi
+    "$@" >/dev/null 2>&1 &
+}
+
+restart waybar waybar --log-level error
+restart dunst  dunst
+
+run nm-applet nm-applet --indicator
+run kanshi    kanshi
+
+exit 0

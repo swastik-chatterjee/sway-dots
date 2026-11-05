@@ -1,0 +1,34 @@
+{
+  "include": [
+    "~/.config/waybar/modules.jsonc"
+  ],
+  "name": "main-bar",
+  "layer": "top",
+  "position": "bottom",
+  "height": 30,
+  "spacing": 4,
+  "fixed-center": true,
+  "exclusive": true,
+  "ipc": true,
+  "reload_style_on_change": true,
+  "modules-left": [
+    "sway/workspaces",
+    "sway/mode",
+    "mpris",
+    "idle_inhibitor"
+  ],
+  "modules-center": [
+    "sway/window"
+  ],
+  "modules-right": [
+    "pulseaudio",
+    "backlight",
+    "cpu",
+    "memory",
+    "disk",
+    "network",
+    "battery",
+    "clock",
+    "tray"
+  ]
+}

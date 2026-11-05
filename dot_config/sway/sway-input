@@ -1,0 +1,19 @@
+##-- Input -------------------------------
+# Names of your inputs: swaymsg -t get_inputs
+# Docs: man 5 sway-input
+
+## Touchpad / mouse
+input "*" {
+    dwt enabled
+    tap enabled
+    natural_scroll disabled
+    middle_emulation enabled
+}
+
+## Keyboard layout (uncomment and edit)
+#input "type:keyboard" {
+#    xkb_layout us
+#    xkb_options caps:escape
+#    repeat_delay 300
+#    repeat_rate 30
+#}

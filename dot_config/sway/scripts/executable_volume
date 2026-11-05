@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+## Volume control with dunst popups (pactl / pipewire-pulse).
+## Usage: volume --inc | --dec | --toggle | --toggle-mic | --get
+
+SINK=@DEFAULT_SINK@
+SOURCE=@DEFAULT_SOURCE@
+STEP=5
+TAG='string:x-canonical-private-synchronous:sys-notify-volume'
+
+get_volume() { pactl get-sink-volume "$SINK" | grep -o '[0-9]\+%' | head -n1 | tr -d '%'; }
+is_muted()   { pactl get-sink-mute "$SINK" | grep -q yes; }
+
+get_icon() {
+    local v; v=$(get_volume)
+    if   is_muted;       then echo audio-volume-muted
+    elif [ "$v" -le 33 ]; then echo audio-volume-low
+    elif [ "$v" -le 66 ]; then echo audio-volume-medium
+    else                      echo audio-volume-high
+    fi
+}
+
+notify() {
+    local v; v=$(get_volume)
+    notify-send -h "$TAG" -h "int:value:$v" -u low -i "$(get_icon)" "Volume" "${v}%"
+}
+
+change() {
+    is_muted && pactl set-sink-mute "$SINK" 0
+    local cur new; cur=$(get_volume); new=$((cur + $1))
+    [ "$new" -gt 100 ] && new=100
+    [ "$new" -lt 0 ] && new=0
+    pactl set-sink-volume "$SINK" "${new}%"
+    notify
+}
+
+case "${1:-}" in
+    --inc)    change "$STEP" ;;
+    --dec)    change "-$STEP" ;;
+    --toggle)
+        pactl set-sink-mute "$SINK" toggle
+        if is_muted; then
+            notify-send -h "$TAG" -u low -i audio-volume-muted "Volume" "Muted"
+        else
+            notify
+        fi ;;
+    --toggle-mic)
+        pactl set-source-mute "$SOURCE" toggle
+        if pactl get-source-mute "$SOURCE" | grep -q yes; then
+            notify-send -h "$TAG" -u low -i microphone-sensitivity-muted "Microphone" "Off"
+        else
+            notify-send -h "$TAG" -u low -i microphone-sensitivity-high "Microphone" "On"
+        fi ;;
+    --get|*)  echo "$(get_volume)%" ;;
+esac
